@@ -15,7 +15,7 @@ model User {
   createdAt DateTime  @default(now())
   profile   Profile?
   messages  Message[]
-  syndicateGroups SyndicateGroup[] @relation("UserSyndicateGroups")
+  syndicateGroups UserSyndicateGroups[]
 }
 
 model Profile {
@@ -33,7 +33,7 @@ model SyndicateGroup {
   createdAt DateTime  @default(now())
   expiresAt DateTime
   messages  Message[]
-  users     User[]    @relation("UserSyndicateGroups")
+  users     UserSyndicateGroups[]
 }
 
 model Message {
