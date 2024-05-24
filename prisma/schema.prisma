@@ -1,14 +1,55 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// prisma/schema.prisma
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+model User {
+  id        String    @id @default(uuid())
+  username  String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  profile   Profile?
+  messages  Message[]
+  syndicateGroups SyndicateGroup[] @relation("UserSyndicateGroups")
+}
+
+model Profile {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id])
+  imageURL  String?
+  bio       String?
+  createdAt DateTime  @default(now())
+}
+
+model SyndicateGroup {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  messages  Message[]
+  users     User[]    @relation("UserSyndicateGroups")
+}
+
+model Message {
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String
+  group     SyndicateGroup @relation(fields: [groupId], references: [id])
+  groupId   String
+  content   String
+  createdAt DateTime  @default(now())
+}
+
+model UserSyndicateGroups {
+  userId         String
+  syndicateGroupId String
+  user           User          @relation(fields: [userId], references: [id])
+  syndicateGroup SyndicateGroup @relation(fields: [syndicateGroupId], references: [id])
+  @@id([userId, syndicateGroupId])
 }
